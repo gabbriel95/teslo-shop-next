@@ -54,7 +54,7 @@ export default function () {
 
           {/*Checkout - resumen de orden*/}
 
-          <div className="bg-white rounded-r-xl shadow-xl p-7">
+          <div className="bg-white rounded-r-xl shadow-xl p-7 h-fit">
             <h2 className="text-2xl mb-02">Resumen de orden</h2>
             <div className="grid grid-cols-2">
               <span>No. Productos</span>
