@@ -12,7 +12,7 @@ const productInCart = [
 ];
 
 export default function () {
-  redirect("/empty");
+  //redirect("/empty"); TODO: carritos sin compras
 
   return (
     <div className="flex justify-center items-center mb-72 px-10 sm:px-0">
