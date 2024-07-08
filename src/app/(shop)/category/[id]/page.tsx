@@ -14,6 +14,8 @@ const allProducts = initialData.products;
 export default function ({ params }: Props) {
   const { id } = params;
 
+  console.log({ id });
+
   const products = allProducts.filter((product) => product.gender === id);
 
   const labels: Record<Category, string> = {
