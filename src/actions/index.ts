@@ -1,4 +1,7 @@
 // En ./src/actions/index.ts
+export { setUserAddress } from "./address/set-user-address";
+export { deleteUserAddress } from "./address/delete-user-address";
+
 export { login, authenticate } from "./auth/login";
 export { logout } from "./auth/logout";
 export { registerUser } from "./auth/registerUser";
