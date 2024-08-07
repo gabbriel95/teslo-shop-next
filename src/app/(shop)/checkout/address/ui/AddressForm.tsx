@@ -1,14 +1,16 @@
 "use client";
 
-import { deleteUserAddress, setUserAddress } from "@/actions";
-import type { Country } from "@/interfaces";
-import { useAddressStore } from "@/store";
-import clsx from "clsx";
-import { useSession } from "next-auth/react";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
+import clsx from "clsx";
 
-interface formInputs {
+import type { Address, Country } from "@/interfaces";
+import { useAddressStore } from "@/store";
+import { deleteUserAddress, setUserAddress } from "@/actions";
+
+type FormInputs = {
   firstName: string;
   lastName: string;
   address: string;
@@ -17,26 +19,31 @@ interface formInputs {
   city: string;
   country: string;
   phone: string;
-  rememberAddress?: boolean;
-}
+  rememberAddress: boolean;
+};
 
 interface Props {
   countries: Country[];
+  userStoredAddress?: Partial<Address>;
 }
 
-export const AddressForm = ({ countries }: Props) => {
+export const AddressForm = ({ countries, userStoredAddress = {} }: Props) => {
+  const router = useRouter();
   const {
     handleSubmit,
     register,
     formState: { isValid },
     reset,
-  } = useForm<formInputs>({
+  } = useForm<FormInputs>({
     defaultValues: {
-      // Todo: leer de la BD
+      ...(userStoredAddress as any),
+      rememberAddress: false,
     },
   });
 
-  const { data: session } = useSession({ required: true });
+  const { data: session } = useSession({
+    required: true,
+  });
 
   const setAddress = useAddressStore((state) => state.setAddress);
   const address = useAddressStore((state) => state.address);
@@ -47,16 +54,17 @@ export const AddressForm = ({ countries }: Props) => {
     }
   }, []);
 
-  const onSubmit = (data: formInputs) => {
+  const onSubmit = async (data: FormInputs) => {
     setAddress(data);
-
     const { rememberAddress, ...restAddress } = data;
 
     if (rememberAddress) {
-      setUserAddress(restAddress, session!.user.id);
+      await setUserAddress(restAddress, session!.user.id);
     } else {
-      deleteUserAddress(session!.user.id);
+      await deleteUserAddress(session!.user.id);
     }
+
+    router.push("/checkout");
   };
 
   return (
@@ -143,7 +151,7 @@ export const AddressForm = ({ countries }: Props) => {
       </div>
 
       <div className="flex flex-col mb-2 sm:mt-1">
-        <div className="inline-flex items-center mb-10">
+        <div className="inline-flex items-center mb-10 ">
           <label
             className="relative flex cursor-pointer items-center rounded-full p-3"
             htmlFor="checkbox"
@@ -171,13 +179,15 @@ export const AddressForm = ({ countries }: Props) => {
               </svg>
             </div>
           </label>
-          <span>Recordar direccion?</span>
+
+          <span>¿Recordar dirección?</span>
         </div>
+
         <button
           disabled={!isValid}
-          // href='/checkout'
+          // href="/checkout"
           type="submit"
-          //className="btn-primary flex w-full sm:w-1/2 justify-center "
+          // className="btn-primary flex w-full sm:w-1/2 justify-center "
           className={clsx({
             "btn-primary": isValid,
             "btn-disabled": !isValid,
