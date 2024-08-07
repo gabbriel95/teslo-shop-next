@@ -94,7 +94,7 @@ model UserAddress{
   lastName String
   address String
   address2 String?
-  postalCode String?
+  postalCode String
   phone String
   city String
 
