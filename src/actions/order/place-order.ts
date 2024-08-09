@@ -19,6 +19,8 @@ export const placeOrder = async (
   const session = await auth();
   const userId = session?.user.id;
 
+  console.log(address);
+
   // Verificar sesion de usuario
   if (!userId) {
     return {
@@ -64,6 +66,48 @@ export const placeOrder = async (
   const prismaTx = await prisma.$transaction(async (tx) => {
     // 1. Actualizar el stock de los productos
     // 2. Crear la orden - Encabezado - Detalle
+
+    const order = await tx.order.create({
+      data: {
+        userId: userId,
+        itemsInOrder: itemsInOrder,
+        subTotal: subTotal,
+        tax: tax,
+        total: total,
+        OrderItem: {
+          createMany: {
+            data: productIds.map((p) => ({
+              quantity: p.quantity,
+              size: p.size,
+              productId: p.productId,
+              price:
+                products.find((product) => product.id === p.productId)?.price ??
+                0,
+            })),
+          },
+        },
+      },
+    });
+
+    // Validar, si el price es cero, lanzar un error
+
     // 3. Crear la direccion de la orden
+    // Address
+
+    const { country, ...restAddress } = address;
+
+    const orderAddress = await tx.orderAddress.create({
+      data: {
+        ...restAddress,
+        countryId: country,
+        orderId: order.id,
+      },
+    });
+
+    return {
+      order: order,
+      updatedProducts: [],
+      orderAddress: orderAddress,
+    };
   });
 };
