@@ -19,8 +19,6 @@ export const placeOrder = async (
   const session = await auth();
   const userId = session?.user.id;
 
-  console.log(address);
-
   // Verificar sesion de usuario
   if (!userId) {
     return {
@@ -88,8 +86,6 @@ export const placeOrder = async (
 
       const updatedProducts = await Promise.all(updatedProductsPromises);
 
-      console.log({ updatedProducts });
-
       //Verificar valores negativos en la existencia = no hay stock
 
       updatedProducts.forEach((product) => {
@@ -156,7 +152,7 @@ export const placeOrder = async (
   } catch (error: any) {
     return {
       ok: false,
-      messagge: error?.message,
+      message: error?.message,
     };
   }
 };
