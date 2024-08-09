@@ -62,52 +62,101 @@ export const placeOrder = async (
   );
 
   // Crear la transaccion en BD
+  try {
+    const prismaTx = await prisma.$transaction(async (tx) => {
+      // 1. Actualizar el stock de los productos
+      const updatedProductsPromises = products.map((product) => {
+        //acumular valores
+        const productQuantity = productIds
+          .filter((p) => p.productId === product.id)
+          .reduce((acc, item) => item.quantity + acc, 0);
 
-  const prismaTx = await prisma.$transaction(async (tx) => {
-    // 1. Actualizar el stock de los productos
-    // 2. Crear la orden - Encabezado - Detalle
+        if (productQuantity === 0) {
+          throw new Error(`${product.id} no tiene cantidad definida`);
+        }
 
-    const order = await tx.order.create({
-      data: {
-        userId: userId,
-        itemsInOrder: itemsInOrder,
-        subTotal: subTotal,
-        tax: tax,
-        total: total,
-        OrderItem: {
-          createMany: {
-            data: productIds.map((p) => ({
-              quantity: p.quantity,
-              size: p.size,
-              productId: p.productId,
-              price:
-                products.find((product) => product.id === p.productId)?.price ??
-                0,
-            })),
+        return tx.product.update({
+          where: { id: product.id },
+          data: {
+            //inStock: product.inStock - productQuantity  NO !!
+            inStock: {
+              decrement: productQuantity,
+            },
+          },
+        });
+      });
+
+      const updatedProducts = await Promise.all(updatedProductsPromises);
+
+      console.log({ updatedProducts });
+
+      //Verificar valores negativos en la existencia = no hay stock
+
+      updatedProducts.forEach((product) => {
+        if (product.inStock < 0) {
+          throw new Error(`${product.title} no tiene inventario suficiente`);
+        }
+      });
+
+      // 2. Crear la orden - Encabezado - Detalle
+
+      const order = await tx.order.create({
+        data: {
+          userId: userId,
+          itemsInOrder: itemsInOrder,
+          subTotal: subTotal,
+          tax: tax,
+          total: total,
+          OrderItem: {
+            createMany: {
+              data: productIds.map((p) => ({
+                quantity: p.quantity,
+                size: p.size,
+                productId: p.productId,
+                price:
+                  products.find((product) => product.id === p.productId)
+                    ?.price ?? 0,
+              })),
+            },
           },
         },
-      },
-    });
+      });
 
-    // Validar, si el price es cero, lanzar un error
+      // TODO :Validar, si el price es cero, lanzar un error
 
-    // 3. Crear la direccion de la orden
-    // Address
+      // 3. Crear la direccion de la orden
+      // Address
 
-    const { country, ...restAddress } = address;
+      const orderAddress = await tx.orderAddress.create({
+        data: {
+          city: address.city,
+          address: address.address,
+          address2: address.address2,
+          firstName: address.firstName,
+          lastName: address.lastName,
+          phone: address.phone,
+          postalCode: address.postalCode,
+          countryId: address.country,
+          orderId: order.id,
+        },
+      });
 
-    const orderAddress = await tx.orderAddress.create({
-      data: {
-        ...restAddress,
-        countryId: country,
-        orderId: order.id,
-      },
+      return {
+        order: order,
+        updatedProducts: updatedProducts,
+        orderAddress: orderAddress,
+      };
     });
 
     return {
-      order: order,
-      updatedProducts: [],
-      orderAddress: orderAddress,
+      ok: true,
+      order: prismaTx.order,
+      prismaTx: prismaTx,
     };
-  });
+  } catch (error: any) {
+    return {
+      ok: false,
+      messagge: error?.message,
+    };
+  }
 };
