@@ -4,6 +4,7 @@ import { useAddressStore, useCartStore } from "@/store";
 import { currencyFormat } from "@/utils";
 import { useEffect, useState } from "react";
 import { clsx } from "clsx";
+import { placeOrder } from "@/actions";
 
 export const PlaceOrder = () => {
   const [loaded, setLoaded] = useState(false);
@@ -33,6 +34,10 @@ export const PlaceOrder = () => {
     console.log({ productsToOrder, address });
 
     // Todo: Server Action
+
+    const res = await placeOrder(productsToOrder, address);
+
+    console.log({ res });
 
     setIsPlacingOrder(false);
   };
