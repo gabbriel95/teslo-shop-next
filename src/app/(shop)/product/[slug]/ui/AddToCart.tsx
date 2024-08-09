@@ -34,7 +34,6 @@ export const AddToCart = ({ product }: Props) => {
       size: size,
       image: product.images[0],
     };
-    // Todos: add to cart
     addProductToCart(cartProduct);
     setPosted(false);
     setQuantity(1);
