@@ -4,6 +4,7 @@ export { deleteUserAddress } from "./address/delete-user-address";
 export { getUserAddress } from "./address/get-user-address";
 
 export { placeOrder } from "./order/place-order";
+export { getOrderBySessionUser } from "./order/get-orders-by-user";
 export { getOrderById } from "./order/get-order-by-id";
 
 export { login, authenticate } from "./auth/login";
