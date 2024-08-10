@@ -1,17 +1,10 @@
-import { Title } from "@/components";
-import { initialData } from "@/seed/seed";
+import { PayPalButton, Title } from "@/components";
 import Image from "next/image";
 import { IoCardOutline } from "react-icons/io5";
 import clsx from "clsx";
 import { getOrderById } from "@/actions";
 import { redirect } from "next/navigation";
 import { currencyFormat } from "@/utils";
-
-const productInCart = [
-  initialData.products[0],
-  initialData.products[1],
-  initialData.products[2],
-];
 
 interface Props {
   params: {
@@ -127,20 +120,7 @@ export default async function OrderByIdPage({ params }: Props) {
             </div>
 
             <div className="mt-5 mb-2 w-full">
-              <div
-                className={clsx(
-                  "flex items-center rounded-lg py-2 px-3.5 text-xs font-bold text-white mb-5",
-                  {
-                    "bg-red-500": !order!.isPaid,
-                    "bg-green-700": order!.isPaid,
-                  }
-                )}
-              >
-                <IoCardOutline size={30} />
-                <span className="mx-2">
-                  {order?.isPaid ? "Pagada" : "No pagada"}
-                </span>
-              </div>
+              <PayPalButton amount={order!.total} orderId={order!.id} />
             </div>
           </div>
         </div>
