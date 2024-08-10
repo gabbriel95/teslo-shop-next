@@ -8,6 +8,7 @@ export { getOrderBySessionUser } from "./order/get-orders-by-user";
 export { getOrderById } from "./order/get-order-by-id";
 
 export { setTransactionId } from "./payments/setTransactionId";
+export { paypalCheckPayment } from "./payments/paypal-check-payment";
 
 export { login, authenticate } from "./auth/login";
 export { logout } from "./auth/logout";
