@@ -2,6 +2,7 @@
 
 import { MercadoPagoConfig, Preference } from "mercadopago";
 import { redirect } from "next/navigation";
+import { setTransactionId } from "./setTransactionId";
 
 export const paymentMercadoPago = async (
   orderId: string,
@@ -24,6 +25,8 @@ export const paymentMercadoPago = async (
       ],
     },
   });
+
+  await setTransactionId(preference.id!, orderId);
 
   redirect(preference.sandbox_init_point!);
 };
