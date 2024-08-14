@@ -20,3 +20,5 @@ export * from "./ui/footer/Footer";
 export * from "./ui/pagination/Pagination";
 
 export * from "./orders/OrderStatus";
+
+export * from "./mercadoPago/buttonMercadoPago";
