@@ -22,3 +22,5 @@ export { getProductBySlug } from "./products/get-product-by-slug";
 export { getStockBySlug } from "./products/get-stock-by-slug";
 
 export { paymentMercadoPago } from "./payments/payment-mercado-pago";
+
+export { getPaginatedUsers } from "./user/get-paginater-user";
