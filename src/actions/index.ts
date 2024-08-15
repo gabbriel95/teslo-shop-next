@@ -6,6 +6,7 @@ export { getUserAddress } from "./address/get-user-address";
 export { placeOrder } from "./order/place-order";
 export { getOrderBySessionUser } from "./order/get-orders-by-user";
 export { getOrderById } from "./order/get-order-by-id";
+export { getPaginatedOrders } from "./order/getPaginatedOrders";
 
 export { setTransactionId } from "./payments/setTransactionId";
 export { paypalCheckPayment } from "./payments/paypal-check-payment";
