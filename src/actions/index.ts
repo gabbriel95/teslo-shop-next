@@ -25,3 +25,5 @@ export { paymentMercadoPago } from "./payments/payment-mercado-pago";
 
 export { getPaginatedUsers } from "./user/get-paginater-user";
 export { changeUserRole } from "./user/change-user-role";
+
+export { getCategories } from "./categories/get-categories";
