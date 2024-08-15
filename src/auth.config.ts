@@ -4,7 +4,11 @@ import { z } from "zod";
 import prisma from "./lib/prisma";
 import bcryptjs from "bcryptjs";
 
+// Rutas que requieren autenticación
 const authenticatedRoutes = ["/checkout/address"];
+
+// Rutas que requieren rol de administrador
+const adminRoutes = ["/admin"];
 
 export const authConfig: NextAuthConfig = {
   pages: {
@@ -13,25 +17,31 @@ export const authConfig: NextAuthConfig = {
   },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
-      //console.log(auth);
       const isLoggedIn = !!auth?.user;
       const isOnProtectedRoute = authenticatedRoutes.includes(nextUrl.pathname);
-      if (isOnProtectedRoute) {
-        if (isLoggedIn) return true;
-        return false;
+      const isOnAdminRoute = adminRoutes.includes(nextUrl.pathname);
+
+      if (isOnProtectedRoute || isOnAdminRoute) {
+        if (isLoggedIn) {
+          // Verificar si es una ruta de administrador
+          if (isOnAdminRoute) {
+            return auth?.user?.role === "admin"; // Permitir solo si el usuario es administrador
+          }
+          return true; // Permitir acceso a rutas autenticadas si está logueado
+        }
+        return false; // No permitir si no está logueado
       }
-      return true;
+      return true; // Permitir acceso a rutas públicas
     },
 
     jwt({ token, user }) {
       if (user) {
         token.data = user;
       }
-
       return token;
     },
-    session({ session, token, user }) {
-      //console.log({ session, token, user });
+
+    session({ session, token }) {
       session.user = token.data as any;
       return session;
     },
@@ -47,9 +57,9 @@ export const authConfig: NextAuthConfig = {
 
         const { email, password } = parsedCredentials.data;
 
-        //Buscar el correo
+        // Buscar el correo
         const user = await prisma.user.findUnique({
-          where: { email: email.toLocaleLowerCase() },
+          where: { email: email.toLowerCase() },
         });
 
         if (!user) throw new Error("User not found");
@@ -58,10 +68,8 @@ export const authConfig: NextAuthConfig = {
         if (!bcryptjs.compareSync(password, user.password))
           throw new Error("Invalid password");
 
-        // Regresar el usuario e informacion del usuario sin el password
+        // Regresar el usuario e información del usuario sin el password
         const { password: _, ...rest } = user;
-
-        //console.log({ rest });
 
         return rest;
       },
