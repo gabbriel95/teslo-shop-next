@@ -4,9 +4,7 @@ export const revalidate = 0;
 import { getPaginatedUsers } from "@/actions";
 import { Title } from "@/components";
 
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { IoCardOutline } from "react-icons/io5";
 import { UsersTable } from "./ui/UsersTable";
 
 export default async function OrdersPage() {
