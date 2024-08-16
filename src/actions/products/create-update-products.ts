@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { Gender, Product, Size } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 const productSchema = z.object({
@@ -37,52 +38,71 @@ export const createUpdateProduct = async (formData: FormData) => {
 
   const { id, ...rest } = product;
 
-  const prismaTx = await prisma.$transaction(async (tx) => {
-    let product: Product;
+  try {
+    const prismaTx = await prisma.$transaction(async (tx) => {
+      let product: Product;
 
-    const tagsArray = rest.tags
-      .split(",")
-      .map((tag) => tag.trim().toLocaleLowerCase());
+      const tagsArray = rest.tags
+        .split(",")
+        .map((tag) => tag.trim().toLocaleLowerCase());
 
-    if (id) {
-      //Actualizacion
-      product = await prisma.product.update({
-        where: {
-          id,
-        },
-        data: {
-          ...rest,
-          sizes: {
-            set: rest.sizes as Size[],
+      if (id) {
+        //Actualizacion
+        product = await prisma.product.update({
+          where: {
+            id,
           },
-          tags: {
-            set: tagsArray,
+          data: {
+            ...rest,
+            sizes: {
+              set: rest.sizes as Size[],
+            },
+            tags: {
+              set: tagsArray,
+            },
           },
-        },
-      });
-    } else {
-      // Crear
+        });
+      } else {
+        // Crear
 
-      product = await prisma.product.create({
-        data: {
-          ...rest,
-          sizes: {
-            set: rest.sizes as Size[],
+        product = await prisma.product.create({
+          data: {
+            ...rest,
+            sizes: {
+              set: rest.sizes as Size[],
+            },
+            tags: {
+              set: tagsArray,
+            },
           },
-          tags: {
-            set: tagsArray,
-          },
-        },
-      });
-    }
+        });
+      }
+      // Proceso de carga y guardado de imagees
+      // Recorrer las imagenes y guardarlas
+      if (formData.getAll("images")) {
+        const images = uploadImages(formData.getAll("images") as File[]);
+      }
+
+      return {
+        product,
+      };
+    });
+
+    // Todo: revalidatePath
+    revalidatePath("/admin/products");
+    revalidatePath(`/admin/products/${product.slug}`);
+    revalidatePath(`/products/${product.slug}`);
+
     return {
-      product,
+      ok: true,
+      product: prismaTx.product,
     };
-  });
-
-  // Todo: revalidatePath
-
-  return {
-    ok: true,
-  };
+  } catch (error) {
+    return {
+      ok: false,
+      message: "Revisar los logs no se pudo actualizar/crear",
+    };
+  }
 };
+
+const uploadImages = async (files: File[]) => {};
