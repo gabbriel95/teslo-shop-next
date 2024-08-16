@@ -21,6 +21,7 @@ export { getPaginatedProductsWithImages } from "./products/product-pagination";
 export { getProductBySlug } from "./products/get-product-by-slug";
 export { getStockBySlug } from "./products/get-stock-by-slug";
 export { createUpdateProduct } from "./products/create-update-products";
+export { deleteProductImage } from "./products/delete-product-image";
 
 export { paymentMercadoPago } from "./payments/payment-mercado-pago";
 
