@@ -74,8 +74,6 @@ export const ProductForm = ({ product, categories }: Props) => {
     formData.append("gender", productToSave.gender);
 
     const { ok } = await createUpdateProduct(formData);
-
-    console.log({ ok });
   };
 
   return (

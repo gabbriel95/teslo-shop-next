@@ -4,7 +4,7 @@ import { register } from "swiper/element/bundle";
 import { Autoplay } from "swiper/modules";
 
 import "./slideshow.css";
-import Image from "next/image";
+import { ProductImage } from "@/components";
 register();
 
 interface Props {
@@ -29,10 +29,10 @@ export const ProductSlideshow = ({ images, title, className }: Props) => {
       >
         {images.map((image) => (
           <swiper-slide key={image}>
-            <Image
+            <ProductImage
               width={1024}
               height={800}
-              src={`/products/${image}`}
+              src={image}
               alt={title}
               className="rounded-lg object-fill"
             />
@@ -49,10 +49,10 @@ export const ProductSlideshow = ({ images, title, className }: Props) => {
       >
         {images.map((image) => (
           <swiper-slide key={image}>
-            <Image
+            <ProductImage
               width={300}
               height={300}
-              src={`/products/${image}`}
+              src={image}
               alt={title}
               className="rounded-lg object-fill"
             />
