@@ -12,7 +12,6 @@ export async function POST(request: NextRequest) {
 
   const payment = await new Payment(client);
 
-  console.log("body:", body.data.id);
 
   payment
     .get({

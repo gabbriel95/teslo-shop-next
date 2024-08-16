@@ -23,8 +23,6 @@ export const AddToCart = ({ product }: Props) => {
 
     if (!size) return;
 
-    // console.log({ size, quantity, product });
-
     const cartProduct: CartProduct = {
       id: product.id,
       slug: product.slug,

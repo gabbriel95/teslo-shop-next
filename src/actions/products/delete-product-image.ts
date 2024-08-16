@@ -16,8 +16,6 @@ export const deleteProductImage = async (imageId: number, imageUrl: string) => {
 
   const imageName = imageUrl.split("/").pop()?.split(".")[0] ?? "";
 
-  console.log(imageName);
-
   try {
     await cloudinary.uploader.destroy(imageName);
 
